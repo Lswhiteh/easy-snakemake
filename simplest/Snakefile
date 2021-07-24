@@ -1,0 +1,53 @@
+rule all:
+    input:
+        "Confusion_matrix.png"
+
+rule Simulate:
+    output:
+        "sim_data.npz"
+    shell:
+        """
+        python 01_sim_data.py
+        """
+
+rule Process:
+    input:
+        "sim_data.npz"
+    output:
+        "sim_data_with_labels.npz"
+    run:
+        import sys
+        import numpy as np
+
+        raw_data = np.load(f"{input}")
+        unpacked = [raw_data[i] for i in raw_data]
+
+        labels = []
+        for arr_idx in range(len(unpacked)):
+            # Make as many labels as we have samples
+            labels.extend([arr_idx] * unpacked[arr_idx].shape[0])
+
+        stacked_data = np.concatenate(unpacked, axis=0)
+        #Remember output could be a list, so this would be expanded if there were multiple!
+        np.savez(f"{output}", data=stacked_data, labels=np.array(labels))
+
+rule TrainModel:
+    input:
+        "sim_data_with_labels.npz"
+    output:
+        "model_results.npz"
+    shell:
+        #Use f-strings since it's python! Input is just treated as a variable
+        f"""
+        python 02_train_model.py {input}
+        """
+
+rule PlotResults:
+    input:
+        "model_results.npz"
+    output:
+        "Confusion_matrix.png"
+    shell:
+        f"""
+        python 03_plot_results.py {input}
+        """
