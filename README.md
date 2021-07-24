@@ -4,7 +4,7 @@ Quick tutorial and example code for using Snakemake in a non-NGS context.
 ### Installation
 Everything you need to run all the code in this repo is packaged in a conda env. To create and activate it:
 ```
-conda create -f easy-snakemake.yaml
+conda create --file easy-snakemake.yaml
 conda activate easy-snakemake
 ```
  ---
